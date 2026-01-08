@@ -25,7 +25,8 @@ Clone into your ComfyUI `custom_nodes` directory:
 
 ```bash
 cd ComfyUI/custom_nodes
-git clone https://github.com/YOUR_USERNAME/vantage-nodes.git
+git clone https://github.com/vantagewithai/Vantage-Nodes.git
+pip install -r requirements.txt
 ```
 
 Restart ComfyUI after installation.
