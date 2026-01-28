@@ -25,6 +25,12 @@ from .latents import (
 )
 from .block_swap import VantageWanBlockSwap
 from .gguf import VantageGGUFLoader
+from .prompt_scene_router import PromptSceneRouter
+from .qwen_tts_downloader import QwenTTSModelDownloader
+from .qwen_tts_voice_design import QwenTTSVoiceDesignNode
+from .qwen_tts_voice_clone_prompt import QwenTTSVoiceClonePromptNode
+from .qwen_tts_speaker_bank import QwenTTSSpeakerBankNode
+from .qwen_tts_multi_speaker import QwenTTSMultiSpeakerNode
 
 NODE_CLASS_MAPPINGS = {
     "CastAnyToIntStringFloat": CastAnyToIntStringFloat,
@@ -48,6 +54,12 @@ NODE_CLASS_MAPPINGS = {
     "SwitchLatentByIndex": SwitchLatentByIndex,
     "VantageWanBlockSwap": VantageWanBlockSwap,
     "VantageGGUFLoader": VantageGGUFLoader,
+    "PromptSceneRouter": PromptSceneRouter,
+    "QwenTTSModelDownloader": QwenTTSModelDownloader,
+    "QwenTTSVoiceDesignNode": QwenTTSVoiceDesignNode,
+    "QwenTTSVoiceClonePromptNode": QwenTTSVoiceClonePromptNode,
+    "QwenTTSSpeakerBankNode": QwenTTSSpeakerBankNode,
+    "QwenTTSMultiSpeakerNode": QwenTTSMultiSpeakerNode,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -72,6 +84,14 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "SwitchLatentByIndex": "Switch Latent (By Index)",
     "VantageWanBlockSwap": "Vantage Wan Video Block Swap",
     "VantageGGUFLoader": "Vantage GGUF UNET Loader",
+    "PromptSceneRouter": "Vantage Prompt Scene Router",
+    "QwenTTSModelDownloader": "(Down)load Qwen TTS Models",
+    "QwenTTSVoiceDesignNode": "Qwen TTS Voice Design Node",
+    "QwenTTSVoiceClonePromptNode": "Qwen TTS Voice Clone Prompt",
+    "QwenTTSSpeakerBankNode": "Qwen TTS Speaker Bank",
+    "QwenTTSMultiSpeakerNode": "Qwen TTS Multi Speaker Node",
 }
 
-__all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]
+WEB_DIRECTORY = "./web"
+
+__all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS", "WEB_DIRECTORY"]
