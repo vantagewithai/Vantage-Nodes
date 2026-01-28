@@ -188,7 +188,7 @@ class QwenTTSMultiSpeakerNode:
 
     RETURN_TYPES = ("AUDIO",)
     FUNCTION = "generate"
-    CATEGORY = "Qwen3-TTS / Dialogue"
+    CATEGORY = "Vantage/Audio/Qwen3 TTS"
 
     def generate(
         self,

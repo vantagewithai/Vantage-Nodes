@@ -73,7 +73,7 @@ class QwenTTSVoiceClonePromptNode:
     RETURN_TYPES = ("QWEN_TTS_VOICE_PROMPT",)
     RETURN_NAMES = ("voice_prompt",)
     FUNCTION = "build"
-    CATEGORY = "Audio / Qwen TTS"
+    CATEGORY = "Vantage/Audio/Qwen3 TTS"
 
     def _audio_tensor_to_tuple(self, audio):
         """

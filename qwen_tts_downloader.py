@@ -39,7 +39,7 @@ class QwenTTSModelDownloader:
     )
 
     FUNCTION = "run"
-    CATEGORY = "Audio / Qwen TTS"
+    CATEGORY = "Vantage/Audio/Qwen3 TTS"
 
     def run(self, device, attention, dtype):
         base_dir = os.path.join(folder_paths.models_dir, "qwen-tts")

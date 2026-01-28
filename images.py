@@ -1,22 +1,17 @@
 from typing import Optional, Tuple
 import torch
 import torch.nn.functional as F
+import math
 
 # ============================================================
 # 1. Join Image Batch (+ batch count)
 # ============================================================
-
 class JoinImageBatch:
     """
-    Joins two IMAGE inputs into a single batch with optional resolution handling.
+    Joins two IMAGE inputs into a single batch with optional
+    resize / pad / crop AND overlap support.
 
     IMAGE format: (B, H, W, C)
-
-    Resize modes:
-      - none   : strict match only
-      - resize : force resize to reference
-      - pad    : keep aspect ratio, pad to match
-      - crop   : keep aspect ratio, center crop
     """
 
     @classmethod
@@ -27,25 +22,43 @@ class JoinImageBatch:
                 "image_b": ("IMAGE",),
             },
             "required": {
+                # resize handling
                 "mode": (
                     ["none", "resize", "pad", "crop"],
-                    {
-                        "default": "resize",
-                        "tooltip": "How to handle resolution mismatch",
-                    },
+                    {"default": "resize"},
                 ),
                 "reference": (
                     ["A", "B"],
-                    {
-                        "default": "A",
-                        "tooltip": "Which image defines the target resolution",
-                    },
+                    {"default": "A"},
                 ),
                 "interpolation": (
                     ["nearest", "bilinear", "bicubic"],
+                    {"default": "bilinear"},
+                ),
+
+                # overlap handling
+                "overlap": (
+                    "INT",
                     {
-                        "default": "bilinear",
-                        "tooltip": "Interpolation used for resizing",
+                        "default": 0,
+                        "min": 0,
+                        "max": 4096,
+                        "step": 1,
+                        "tooltip": "Number of overlapping frames (0 = disabled)",
+                    },
+                ),
+                "overlap_side": (
+                    ["A", "B"],
+                    {
+                        "default": "A",
+                        "tooltip": "Which batch provides the overlap frames",
+                    },
+                ),
+                "overlap_mode": (
+                    ["cut", "linear_blend", "ease_in_out"],
+                    {
+                        "default": "linear_blend",
+                        "tooltip": "Overlap blending method",
                     },
                 ),
             },
@@ -55,20 +68,14 @@ class JoinImageBatch:
     RETURN_NAMES = ("image", "batch_count")
 
     FUNCTION = "run"
-    CATEGORY = "Vantage / Image"
+    CATEGORY = "Vantage/Image"
 
     # --------------------------------------------------
-    # helpers
+    # resize helpers (unchanged)
     # --------------------------------------------------
 
-    def _resize(
-        self,
-        src: torch.Tensor,
-        h: int,
-        w: int,
-        mode: str,
-    ) -> torch.Tensor:
-        src = src.permute(0, 3, 1, 2)  # NHWC → NCHW
+    def _resize(self, src: torch.Tensor, h: int, w: int, mode: str) -> torch.Tensor:
+        src = src.permute(0, 3, 1, 2)
         out = F.interpolate(
             src,
             size=(h, w),
@@ -103,6 +110,16 @@ class JoinImageBatch:
         return src[:, y0:y0 + rh, x0:x0 + rw, :]
 
     # --------------------------------------------------
+    # overlap helpers
+    # --------------------------------------------------
+
+    def _crossfade(self, a: torch.Tensor, b: torch.Tensor, t: float) -> torch.Tensor:
+        return a * (1.0 - t) + b * t
+
+    def _ease_in_out(self, t: float) -> float:
+        return 0.5 * (1.0 - math.cos(math.pi * t))
+
+    # --------------------------------------------------
     # main
     # --------------------------------------------------
 
@@ -113,17 +130,22 @@ class JoinImageBatch:
         mode: str = "resize",
         reference: str = "A",
         interpolation: str = "bilinear",
+        overlap: int = 0,
+        overlap_side: str = "A",
+        overlap_mode: str = "linear_blend",
     ) -> Tuple[Optional[torch.Tensor], int]:
 
+        # None handling
         if image_a is None and image_b is None:
             return None, 0
-
         if image_a is None:
             return image_b, image_b.shape[0]
-
         if image_b is None:
             return image_a, image_a.shape[0]
 
+        # ----------------------------
+        # resolution alignment
+        # ----------------------------
         ref_is_a = reference.upper() == "A"
         ref = image_a if ref_is_a else image_b
         src = image_b if ref_is_a else image_a
@@ -133,29 +155,15 @@ class JoinImageBatch:
 
         if (rh != sh or rw != sw):
             if mode == "none":
-                raise ValueError(
-                    f"Image size mismatch: {image_a.shape[1:]} vs {image_b.shape[1:]}"
-                )
+                raise ValueError("Image resolution mismatch")
 
-            elif mode == "resize":
+            if mode == "resize":
                 src = self._resize(src, rh, rw, interpolation)
-
             elif mode == "pad":
-                src = self._resize(
-                    src,
-                    min(rh, sh),
-                    min(rw, sw),
-                    interpolation,
-                )
+                src = self._resize(src, min(rh, sh), min(rw, sw), interpolation)
                 src = self._pad_to_match(src, ref)
-
             elif mode == "crop":
-                src = self._resize(
-                    src,
-                    max(rh, sh),
-                    max(rw, sw),
-                    interpolation,
-                )
+                src = self._resize(src, max(rh, sh), max(rw, sw), interpolation)
                 src = self._crop_to_match(src, ref)
 
         if ref_is_a:
@@ -163,9 +171,41 @@ class JoinImageBatch:
         else:
             image_a = src
 
-        joined = torch.cat([image_a, image_b], dim=0)
-        return joined, joined.shape[0]
+        # ----------------------------
+        # overlap logic
+        # ----------------------------
+        if overlap > 0:
+            overlap = min(overlap, image_a.shape[0], image_b.shape[0])
 
+            if overlap_side.upper() == "A":
+                src_overlap = image_a[-overlap:]
+                dst_overlap = image_b[:overlap]
+                prefix = image_a[:-overlap]
+                suffix = image_b[overlap:]
+            else:
+                src_overlap = image_b[:overlap]
+                dst_overlap = image_a[-overlap:]
+                prefix = image_a
+                suffix = image_b[overlap:]
+
+            if overlap_mode == "cut":
+                joined = torch.cat((prefix, suffix), dim=0)
+
+            else:
+                blended = []
+                for i in range(overlap):
+                    t = (i + 1) / (overlap + 1)
+                    if overlap_mode == "ease_in_out":
+                        t = self._ease_in_out(t)
+                    blended.append(self._crossfade(src_overlap[i], dst_overlap[i], t))
+
+                blended = torch.stack(blended, dim=0)
+                joined = torch.cat((prefix, blended, suffix), dim=0)
+
+        else:
+            joined = torch.cat((image_a, image_b), dim=0)
+
+        return joined, joined.shape[0]
 # ============================================================
 # 2. Strict Image Shape Validator
 # ============================================================
@@ -189,7 +229,7 @@ class ValidateImageShape:
     RETURN_NAMES = ("image", "valid")
 
     FUNCTION = "run"
-    CATEGORY = "Vantage / Image"
+    CATEGORY = "Vantage/Image"
 
     def run(
         self,
@@ -229,7 +269,7 @@ class AppendImageBatch:
     RETURN_NAMES = ("image", "batch_count")
 
     FUNCTION = "run"
-    CATEGORY = "Vantage / Image"
+    CATEGORY = "Vantage/Image"
 
     def run(
         self,
@@ -278,7 +318,7 @@ class SwitchImageByIndex:
     RETURN_NAMES = ("image",)
 
     FUNCTION = "run"
-    CATEGORY = "Vantage / Image"
+    CATEGORY = "Vantage/Image"
 
     def run(
         self,
@@ -295,3 +335,4 @@ class SwitchImageByIndex:
             return (images[index],)
 
         return (None,)
+

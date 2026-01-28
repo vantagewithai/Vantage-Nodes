@@ -23,7 +23,7 @@ class CastAnyToIntStringFloat:
     RETURN_NAMES = ("int", "string", "float")
 
     FUNCTION = "cast"
-    CATEGORY = "Vantage / Types"
+    CATEGORY = "Vantage/Types"
 
     def cast(self, value: object) -> Tuple[int, str, float]:
         try:
@@ -53,7 +53,7 @@ class ConditionalPassThrough:
     RETURN_NAMES = ("output",)
 
     FUNCTION = "run"
-    CATEGORY = "Vantage / Control"
+    CATEGORY = "Vantage/Control"
 
     def run(self, value: object, enabled: bool) -> Tuple[object]:
         return (value,) if enabled else (None,)
@@ -78,7 +78,7 @@ class StringListIndex:
     RETURN_NAMES = ("string", "count")
 
     FUNCTION = "run"
-    CATEGORY = "Vantage / String"
+    CATEGORY = "Vantage/String"
 
     def run(self, text: str, index: int, include_empty: bool) -> Tuple[str, int]:
         lines: List[str] = text.splitlines()
@@ -107,7 +107,7 @@ class StringListStepper:
     RETURN_NAMES = ("string", "index", "count")
 
     FUNCTION = "run"
-    CATEGORY = "Vantage / String"
+    CATEGORY = "Vantage/String"
 
     def run(
         self,
@@ -147,7 +147,7 @@ class StringListRandom:
     RETURN_NAMES = ("string", "count")
 
     FUNCTION = "run"
-    CATEGORY = "Vantage / String"
+    CATEGORY = "Vantage/String"
 
     def run(self, text: str, include_empty: bool, seed: int) -> Tuple[str, int]:
         lines: List[str] = text.splitlines()
@@ -179,7 +179,7 @@ class StringJoiner:
     RETURN_NAMES = ("joined",)
 
     FUNCTION = "run"
-    CATEGORY = "Vantage / String"
+    CATEGORY = "Vantage/String"
 
     def run(self, text: str, delimiter: str, include_empty: bool) -> Tuple[str]:
         lines = text.splitlines()
@@ -204,7 +204,7 @@ class RegexFilter:
     RETURN_NAMES = ("filtered_text", "count")
 
     FUNCTION = "run"
-    CATEGORY = "Vantage / String"
+    CATEGORY = "Vantage/String"
 
     def run(self, text: str, pattern: str, invert: bool) -> Tuple[str, int]:
         if not pattern:
@@ -235,7 +235,7 @@ class DelimiterSplit:
     RETURN_NAMES = ("multiline", "count")
 
     FUNCTION = "run"
-    CATEGORY = "Vantage / String"
+    CATEGORY = "Vantage/String"
 
     def run(self, text: str, delimiter: str, strip_whitespace: bool) -> Tuple[str, int]:
         parts = text.split(delimiter)
@@ -264,7 +264,7 @@ class IndexWrap:
     RETURN_NAMES = ("index",)
 
     FUNCTION = "run"
-    CATEGORY = "Vantage / Math"
+    CATEGORY = "Vantage/Math"
 
     def run(self, index: int, size: int, wrap: bool) -> Tuple[int]:
         if size <= 0:
@@ -303,7 +303,7 @@ class AdvancedCalculator:
     RETURN_NAMES = ("result_float", "result_int")
     
     FUNCTION = "run"
-    CATEGORY = "Vantage / Math"
+    CATEGORY = "Vantage/Math"
     DESCRIPTION = """
     Advanced Calculator (Expression-based)
     VARIABLES (case-insensitive):
@@ -469,7 +469,7 @@ class SwitchAny:
     RETURN_NAMES = ("value",)
 
     FUNCTION = "run"
-    CATEGORY = "Vantage / Control"
+    CATEGORY = "Vantage/Control"
 
     def run(
         self,
@@ -521,7 +521,7 @@ class SwitchAnyByIndex:
     RETURN_NAMES = ("value",)
 
     FUNCTION = "run"
-    CATEGORY = "Vantage / Control"
+    CATEGORY = "Vantage/Control"
 
     def run(
         self,

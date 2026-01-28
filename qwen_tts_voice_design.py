@@ -51,7 +51,7 @@ class QwenTTSVoiceDesignNode:
 
     RETURN_TYPES = ("AUDIO",)
     FUNCTION = "generate"
-    CATEGORY = "Audio / Qwen TTS"
+    CATEGORY = "Vantage/Audio/Qwen3 TTS"
 
     def generate(
         self,

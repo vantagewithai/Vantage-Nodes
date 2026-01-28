@@ -29,7 +29,7 @@ class JoinLatentBatch:
     RETURN_NAMES = ("latent", "batch_count")
 
     FUNCTION = "run"
-    CATEGORY = "Vantage / Latent"
+    CATEGORY = "Vantage/Latent"
 
     def run(
         self,
@@ -85,7 +85,7 @@ class AppendLatentBatch:
     RETURN_NAMES = ("latent", "batch_count")
 
     FUNCTION = "run"
-    CATEGORY = "Vantage / Latent"
+    CATEGORY = "Vantage/Latent"
 
     def run(
         self,
@@ -144,7 +144,7 @@ class SwitchLatentByIndex:
     RETURN_NAMES = ("latent",)
 
     FUNCTION = "run"
-    CATEGORY = "Vantage / Latent"
+    CATEGORY = "Vantage/Latent"
 
     def run(
         self,

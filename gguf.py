@@ -143,9 +143,9 @@ class VantageGGUFLoader:
 
     RETURN_TYPES = ("MODEL",)
     FUNCTION = "load_unet"
-    CATEGORY = "Vantage / UNET"
+    CATEGORY = "Vantage/UNET"
     TITLE = "Unet Loader (GGUF)"
-
+    
     def load_unet(self, unet_name, dequant_dtype=None, patch_dtype=None, patch_on_device=None):
         ops = GGMLOps()
 

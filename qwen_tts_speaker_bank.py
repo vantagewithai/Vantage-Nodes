@@ -60,7 +60,7 @@ class QwenTTSSpeakerBankNode:
     RETURN_TYPES = ("DICT",)
     RETURN_NAMES = ("speaker_prompts",)
     FUNCTION = "build"
-    CATEGORY = "Audio / Qwen TTS"
+    CATEGORY = "Vantage/Audio/Qwen3 TTS"
 
     def build(self, speaker_1: str, speakers_json: str):
         """

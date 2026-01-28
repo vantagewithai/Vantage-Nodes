@@ -3,3 +3,17 @@ gguf>=0.13.0
 # optional - tokenizer
 sentencepiece
 protobuf
+torch
+torchaudio
+transformers>=4.57.0
+librosa
+soundfile
+accelerate
+numpy
+einops
+tiktoken
+sentencepiece
+sox
+huggingface_hub
+onnxruntime
+onnxruntime-gpu
