@@ -1,7 +1,7 @@
 [project]
 name = "Vantage-Nodes"
 description = "collection of utilities node from Vantage with AI"
-version = "1.0.0"
+version = "1.0.1"
 license = { file = "LICENSE" }
 dependencies = ["gguf>=0.13.0", "sentencepiece", "protobuf"]
 
@@ -13,3 +13,4 @@ Repository = "https://github.com/vantagewithai/Vantage-Nodes"
 PublisherId = "vantagewithai"
 DisplayName = "Vantage-Nodes"
 Icon = ""
+
