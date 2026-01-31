@@ -4,7 +4,8 @@ import torch
 from typing import Dict, Any
 
 from .qwen_tts_voice_storage import get_custom_voice_root
-
+from .qwen_tts.inference.qwen3_tts_model import VoiceClonePromptItem
+torch.serialization.add_safe_globals([VoiceClonePromptItem])
 
 def load_qwen_tts_voice_prompt(voice_name: str):
     """
