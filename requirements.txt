@@ -5,7 +5,6 @@ sentencepiece
 protobuf
 torch
 torchaudio
-transformers>=4.57.0
 librosa
 soundfile
 accelerate
