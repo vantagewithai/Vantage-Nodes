@@ -256,6 +256,16 @@ MIT License
 
 ---
 
+## Credits
+
+Krea 2-related parts of this repository were developed with help and reference from the following projects:
+
+- [ComfyUI-Krea2T-Enhancer](https://github.com/capitan01R/ComfyUI-Krea2T-Enhancer)
+- [ComfyUI-Conditioning-Rebalance](https://github.com/nova452/ComfyUI-Conditioning-Rebalance)
+- [ComfyUI-Krea2TextEncoder](https://github.com/ethanfel/ComfyUI-Krea2TextEncoder)
+
+Special thanks to their authors for their work and shared ideas that helped support the Krea 2 implementation here.
+
 ## 🤝 Contributing
 
 Contributions, issues, and feature requests are welcome.
