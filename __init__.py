@@ -17,6 +17,9 @@ from .images import (
     ValidateImageShape,
     AppendImageBatch,
     SwitchImageByIndex,
+    VantageMultiImageLoader,
+    VantageUnbatchImages,
+    VantageImagesOrNone,
 )
 from .latents import (
     JoinLatentBatch,
@@ -31,6 +34,7 @@ from .qwen_tts_voice_design import QwenTTSVoiceDesignNode
 from .qwen_tts_voice_clone_prompt import QwenTTSVoiceClonePromptNode
 from .qwen_tts_speaker_bank import QwenTTSSpeakerBankNode
 from .qwen_tts_multi_speaker import QwenTTSMultiSpeakerNode
+from .krea2 import VantageTextEncodeKrea2
 
 NODE_CLASS_MAPPINGS = {
     "CastAnyToIntStringFloat": CastAnyToIntStringFloat,
@@ -60,6 +64,10 @@ NODE_CLASS_MAPPINGS = {
     "QwenTTSVoiceClonePromptNode": QwenTTSVoiceClonePromptNode,
     "QwenTTSSpeakerBankNode": QwenTTSSpeakerBankNode,
     "QwenTTSMultiSpeakerNode": QwenTTSMultiSpeakerNode,
+    "VantageTextEncodeKrea2": VantageTextEncodeKrea2,
+    "VantageMultiImageLoader": VantageMultiImageLoader,
+    "VantageUnbatchImages": VantageUnbatchImages,
+    "VantageImagesOrNone": VantageImagesOrNone,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -90,6 +98,10 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "QwenTTSVoiceClonePromptNode": "Qwen TTS Voice Clone Prompt",
     "QwenTTSSpeakerBankNode": "Qwen TTS Speaker Bank",
     "QwenTTSMultiSpeakerNode": "Qwen TTS Multi Speaker Node",
+    "VantageTextEncodeKrea2": "Vantage Text Encode (Krea2)",
+    "VantageMultiImageLoader": "Vantage Multiple Image Loader",
+    "VantageUnbatchImages": "Vantage Unbatch Images",
+    "VantageImagesOrNone": "Vantage Images or None",
 }
 
 WEB_DIRECTORY = "./web"
