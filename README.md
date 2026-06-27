@@ -266,6 +266,13 @@ Krea 2-related parts of this repository were developed with help and reference f
 
 Special thanks to their authors for their work and shared ideas that helped support the Krea 2 implementation here.
 
+The Multi Image Loader node was also developed with help and reference from:
+
+- [WhatDreamsCost-ComfyUI](https://github.com/WhatDreamsCost/WhatDreamsCost-ComfyUI) for the multi-image loading and gallery-based workflow ideas [web:23][web:250]
+- [ComfyUI-RMBG](https://github.com/1038lab/ComfyUI-RMBG) for background removal workflows, model handling, and related RMBG integration ideas [web:246][web:251]
+
+Special thanks to those authors as well for the work that helped shape the Multi Image Loader functionality in this project.
+
 ## 🤝 Contributing
 
 Contributions, issues, and feature requests are welcome.
