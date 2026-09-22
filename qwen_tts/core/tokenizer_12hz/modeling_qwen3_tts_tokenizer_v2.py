@@ -15,6 +15,7 @@
 """PyTorch Qwen3TTSTokenizerV2 model."""
 
 import math
+import inspect
 from dataclasses import dataclass
 from typing import Callable, Optional, Union, List
 
@@ -31,10 +32,41 @@ from transformers.masking_utils import (
     create_causal_mask,
     create_sliding_window_causal_mask,
 )
+
+# Transformers 5 renamed mask arguments used by this vendored tokenizer.
+if "inputs_embeds" in inspect.signature(create_causal_mask).parameters:
+    _create_causal_mask = create_causal_mask
+    _create_sliding_window_causal_mask = create_sliding_window_causal_mask
+
+    def _adapt_mask_kwargs(kwargs):
+        if "input_embeds" in kwargs:
+            kwargs["inputs_embeds"] = kwargs.pop("input_embeds")
+        cache_position = kwargs.pop("cache_position", None)
+        if cache_position is not None and "position_ids" not in kwargs:
+            kwargs["position_ids"] = cache_position.unsqueeze(0)
+        return kwargs
+
+    def create_causal_mask(**kwargs):
+        return _create_causal_mask(**_adapt_mask_kwargs(kwargs))
+
+    def create_sliding_window_causal_mask(**kwargs):
+        return _create_sliding_window_causal_mask(**_adapt_mask_kwargs(kwargs))
+
 from transformers.modeling_flash_attention_utils import FlashAttentionKwargs
 from transformers.modeling_layers import GradientCheckpointingLayer
 from transformers.modeling_outputs import BaseModelOutputWithPast
 from transformers.modeling_rope_utils import ROPE_INIT_FUNCTIONS, dynamic_rope_update
+
+if "default" not in ROPE_INIT_FUNCTIONS:
+    def _default_rope_parameters(config, device=None, seq_len=None, **kwargs):
+        head_dim = getattr(config, "head_dim", None) or config.hidden_size // config.num_attention_heads
+        factor = getattr(config, "partial_rotary_factor", 1.0)
+        exponent = torch.arange(0, int(head_dim * factor), 2, dtype=torch.int64).float().to(device)
+        inv_freq = 1.0 / (torch.tensor(config.rope_theta, dtype=torch.int64) ** (exponent / head_dim))
+        return inv_freq, 1.0
+
+    ROPE_INIT_FUNCTIONS = {**ROPE_INIT_FUNCTIONS, "default": _default_rope_parameters}
+
 from transformers.modeling_utils import ALL_ATTENTION_FUNCTIONS, PreTrainedModel
 from transformers.processing_utils import Unpack
 from transformers.utils import ModelOutput, logging
@@ -543,6 +575,9 @@ class Qwen3TTSTokenizerV2DecoderTransformerModel(Qwen3TTSTokenizerV2DecoderPreTr
             cache_position = torch.arange(
                 past_seen_tokens, past_seen_tokens + inputs_embeds.shape[1], device=inputs_embeds.device
             )
+
+        if position_ids is not None and position_ids.shape[-1] != inputs_embeds.shape[1]:
+            position_ids = position_ids[..., -inputs_embeds.shape[1] :]
 
         if position_ids is None:
             position_ids = cache_position.unsqueeze(0)

@@ -1,6 +1,8 @@
 import torch
+import transformers
 
 from .qwen_tts import Qwen3TTSModel, Qwen3TTSTokenizer
+from .qwen_tts.core.models.modeling_qwen3_tts import ROPE_INIT_FUNCTIONS
 from .qwen_tts_patches import apply_qwen3_patches, apply_sage_attn_patch
 
 _MODEL_CACHE = {}
@@ -36,11 +38,7 @@ def resolve_attention(attn: str) -> str:
     sage_attn is handled as a runtime patch, not here.
     """
     if attn == "auto":
-        try:
-            import flash_attn  # noqa
-            return "flash_attention_2"
-        except Exception:
-            pass
+        # Qwen3TTSForConditionalGeneration does not advertise FlashAttention 2.
         return "sdpa" if torch.cuda.is_available() else "eager"
 
     if attn == "flash_attn":
@@ -129,6 +127,18 @@ class LazyQwenTTS:
             # Move the actual torch model, not the wrapper
             if hasattr(obj, "model") and hasattr(obj.model, "to"):
                 obj.model = obj.model.to(dev)
+
+            # Transformers 5 leaves these rotary frequencies on the meta device.
+            # Repair both decoders after the model has reached its final device.
+            if not transformers.__version__.startswith("4."):
+                for rotary in (
+                    obj.model.talker.model.rotary_emb,
+                    obj.model.talker.code_predictor.model.rotary_emb,
+                ):
+                    inv_freq, scaling = ROPE_INIT_FUNCTIONS["default"](rotary.config, dev)
+                    rotary.inv_freq = inv_freq
+                    rotary.original_inv_freq = inv_freq.clone()
+                    rotary.attention_scaling = scaling
             
             apply_qwen3_patches(obj)
             
@@ -148,4 +158,3 @@ class LazyQwenTTS:
         obj._unload_callback = unload
 
         return obj
-
